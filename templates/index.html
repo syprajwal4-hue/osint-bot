@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian OSINT Bot - Search Phone Numbers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+            margin-right: 8px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: #667eea;
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-item .label {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-item .value {
+            color: #667eea;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .record {
+            background: #f9f9f9;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .record h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .record-item:last-child {
+            border-bottom: none;
+        }
+
+        .record-label {
+            color: #666;
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        .record-value {
+            color: #333;
+            word-break: break-word;
+            text-align: right;
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .success {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #3c3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Indian OSINT Bot</h1>
+            <p>Search mobile number information</p>
+            <span class="badge">Fast & Secure</span>
+            <span class="badge">Real-time Data</span>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="label">Used Today</div>
+                <div class="value" id="used">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="label">Remaining</div>
+                <div class="value" id="remaining">5</div>
+            </div>
+            <div class="stat-item">
+                <div class="label">Daily Limit</div>
+                <div class="value">5</div>
+            </div>
+        </div>
+
+        <div class="search-box">
+            <input 
+                type="text" 
+                id="phoneInput" 
+                placeholder="Enter 10-digit number (6-9 start) or +91XXXXXXXXXX"
+                autocomplete="off"
+            >
+            <button class="btn" id="searchBtn" type="button" onclick="searchNumber(); return false;">Search</button>
+        </div>
+
+        <div id="message"></div>
+        <div id="results"></div>
+
+        <div class="footer">
+            Made with ❤️ by <a href="https://t.me/prajwal1515" target="_blank">@prajwal1515</a>
+        </div>
+    </div>
+
+    <script>
+        const phoneInput = document.getElementById('phoneInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const messageDiv = document.getElementById('message');
+        const resultsDiv = document.getElementById('results');
+
+        // Load stats on page load
+        window.addEventListener('load', loadStats);
+        phoneInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchNumber();
+            }
+        });
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                document.getElementById('used').textContent = data.used;
+                document.getElementById('remaining').textContent = data.remaining;
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+
+        async function searchNumber() {
+            const phone = phoneInput.value.trim().replace(/\s+/g, '').replace('+91', '');
+            
+            if (!phone) {
+                showMessage('Please enter a phone number', 'error');
+                return;
+            }
+
+            if (!/^\d{10}$/.test(phone)) {
+                showMessage('Invalid! Enter 10-digit number', 'error');
+                return;
+            }
+
+            searchBtn.disabled = true;
+            messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Searching...</div>';
+            resultsDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                    loadStats();
+                } else {
+                    showMessage(data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Network error. Try again!', 'error');
+                console.error('Error:', error);
+            } finally {
+                searchBtn.disabled = false;
+                messageDiv.innerHTML = '';
+            }
+        }
+
+        function displayResults(data) {
+            let html = `<div class="success">✓ Found ${data.count} record(s) for <strong>${data.phone}</strong></div>`;
+            html += '<div class="results">';
+
+            data.records.forEach((record, index) => {
+                html += `
+                    <div class="record">
+                        <h3>Record ${index + 1}</h3>
+                        <div class="record-item">
+                            <span class="record-label">Mobile:</span>
+                            <span class="record-value">${record.mobile || 'N/A'}</span>
+                        </div>
+                        <div class="record-item">
+                            <span class="record-label">Name:</span>
+                            <span class="record-value">${record.name || 'N/A'}</span>
+                        </div>
+                        <div class="record-item">
+                            <span class="record-label">Father:</span>
+                            <span class="record-value">${record.father || 'N/A'}</span>
+                        </div>
+                        <div class="record-item">
+                            <span class="record-label">Address:</span>
+                            <span class="record-value">${record.address || 'N/A'}</span>
+                        </div>
+                        <div class="record-item">
+                            <span class="record-label">Carrier:</span>
+                            <span class="record-value">${record.carrier || 'N/A'}</span>
+                        </div>
+                        <div class="record-item">
+                            <span class="record-label">Alt No:</span>
+                            <span class="record-value">${record.alt_number || 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            html += `<div style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Remaining queries: ${data.remaining}/5</div>`;
+            resultsDiv.innerHTML = html;
+        }
+
+        function showMessage(text, type) {
+            messageDiv.innerHTML = `<div class="${type}">${text}</div>`;
+        }
+    </script>
+</body>
+</html>
