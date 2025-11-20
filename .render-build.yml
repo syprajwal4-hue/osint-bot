@@ -1,0 +1,16 @@
+build:
+  command: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+services:
+  - type: web
+    name: osint-bot
+    runtime: python
+    runtimeVersion: 3.13.1
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 2 --threads 2 --worker-class gthread --bind 0.0.0.0:$PORT --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.1
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000
