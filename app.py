@@ -78,18 +78,10 @@ def search():
                 'error': error or 'No records found'
             }), 400
         
-        # Format response
+        # Format response - pass all fields from API
         formatted = []
         for r in records:
-            formatted.append({
-                'mobile': r.get('mobile'),
-                'name': r.get('name', 'N/A'),
-                'father': r.get('fname', 'N/A'),
-                'address': r.get('address', 'N/A'),
-                'alt_number': r.get('alt', 'N/A'),
-                'carrier': r.get('circle', 'N/A'),
-                'id': r.get('id', 'N/A')
-            })
+            formatted.append(r)  # Pass raw API response directly
 
         return jsonify({
             'success': True,

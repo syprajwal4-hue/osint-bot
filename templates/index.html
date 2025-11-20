@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indian OSINT Bot - Search Phone Numbers</title>
+    <title>🔍 OSINT Bot - Phone & Vehicle Search</title>
     <style>
         * {
             margin: 0;
@@ -13,60 +13,90 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
 
         .container {
+            max-width: 900px;
+            margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 700px;
-            width: 100%;
-            padding: 40px;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            overflow: hidden;
         }
 
         .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
             text-align: center;
-            margin-bottom: 40px;
         }
 
         .header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .header p {
-            color: #666;
             font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
         }
 
-        .badge {
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ff6f00;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
             display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
             margin-top: 10px;
-            margin-right: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            padding: 20px 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .search-section {
+            display: none;
+        }
+
+        .search-section.active {
+            display: block;
         }
 
         .search-box {
@@ -87,10 +117,6 @@
 
         .search-box input:focus {
             border-color: #667eea;
-        }
-
-        .search-box input::placeholder {
-            color: #999;
         }
 
         .btn {
@@ -119,48 +145,20 @@
             cursor: not-allowed;
         }
 
-        .stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-
-        .stat-item {
-            flex: 1;
-            text-align: center;
-        }
-
-        .stat-item .label {
-            color: #666;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .stat-item .value {
-            color: #667eea;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
         .results {
             margin-top: 30px;
         }
 
         .record {
             background: #f9f9f9;
-            padding: 18px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 12px;
             margin-bottom: 15px;
             border-left: 4px solid #667eea;
-            animation: fadeIn 0.3s ease-out;
+            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes fadeIn {
+        @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateX(-10px);
@@ -173,52 +171,69 @@
 
         .record h3 {
             color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 16px;
-        }
-
-        .record-item {
             display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 13px;
+            align-items: center;
+            gap: 8px;
         }
 
-        .record-item:last-child {
+        .record-field {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .record-field:last-child {
             border-bottom: none;
         }
 
         .record-label {
-            color: #666;
-            font-weight: 600;
-            min-width: 100px;
+            color: #667eea;
+            font-weight: 700;
         }
 
         .record-value {
             color: #333;
             word-break: break-word;
-            text-align: right;
-            flex: 1;
-            margin-left: 10px;
         }
 
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
             border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #c33;
+            color: white;
+            font-weight: 600;
+            animation: slideInRight 0.3s ease-out;
+            z-index: 1000;
+            max-width: 350px;
         }
 
-        .success {
-            background: #efe;
-            color: #3c3;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #3c3;
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
         }
 
         .loading {
@@ -248,7 +263,7 @@
             padding-top: 20px;
             border-top: 1px solid #eee;
             color: #999;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .footer a {
@@ -256,13 +271,28 @@
             text-decoration: none;
         }
 
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 600px) {
-            .container {
-                padding: 20px;
+            .header h1 {
+                font-size: 28px;
             }
 
-            .header h1 {
-                font-size: 22px;
+            .tabs {
+                padding: 15px 20px;
+            }
+
+            .content {
+                padding: 20px;
             }
 
             .search-box {
@@ -273,8 +303,14 @@
                 width: 100%;
             }
 
-            .stats {
-                flex-direction: column;
+            .record-field {
+                grid-template-columns: 100px 1fr;
+            }
+
+            .notification {
+                right: 10px;
+                left: 10px;
+                max-width: none;
             }
         }
     </style>
@@ -282,61 +318,97 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 Indian OSINT Bot</h1>
-            <p>Search mobile number information</p>
-            <span class="badge">Fast & Secure</span>
-            <span class="badge">Real-time Data</span>
+            <h1>🔍 OSINT_TOOL</h1>
+            <p>Search phone numbers and vehicle information</p>
+            <div class="warning">⚠️ Use it just for ethical use only. Misuse of information is punishable by law.</div>
         </div>
 
-
-
-        <div class="search-box">
-            <input 
-                type="text" 
-                id="phoneInput" 
-                placeholder="Enter 10-digit number (6-9 start) or +91XXXXXXXXXX"
-                autocomplete="off"
-            >
-            <button class="btn" id="searchBtn" type="button" onclick="searchNumber(); return false;">Search</button>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="mobile" onclick="switchTab('mobile')">📱 Mobile</button>
+            <button class="tab-btn" data-tab="vehicle" onclick="switchTab('vehicle')">🚗 Vehicle</button>
+            <button class="tab-btn" data-tab="about" onclick="switchTab('about')">ℹ️ About</button>
         </div>
 
-        <div id="message"></div>
-        <div id="results"></div>
+        <div class="content">
+            <!-- Mobile Search -->
+            <div class="search-section active" id="mobile">
+                <h2 style="margin-bottom: 15px; color: #333;">📱 Mobile Number Search</h2>
+                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Enter a 10-digit mobile number to search</p>
+                
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="phoneInput" 
+                        placeholder="Enter 10-digit number (6-9 start)"
+                        autocomplete="off"
+                    >
+                    <button class="btn" id="searchBtn" onclick="searchNumber()">🔍 Search Mobile</button>
+                </div>
+
+                <div id="mobileMessage"></div>
+                <div id="mobileResults"></div>
+            </div>
+
+            <!-- Vehicle Search -->
+            <div class="search-section" id="vehicle">
+                <h2 style="margin-bottom: 15px; color: #333;">🚗 Vehicle Search</h2>
+                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Vehicle search feature coming soon...</p>
+                <div class="no-results">
+                    <div class="no-results-icon">🔜</div>
+                    <p>Vehicle number search will be available soon!</p>
+                </div>
+            </div>
+
+            <!-- About -->
+            <div class="search-section" id="about">
+                <h2 style="margin-bottom: 15px; color: #333;">ℹ️ About OSINT Tool</h2>
+                <p style="color: #666; margin-bottom: 15px;">
+                    This tool helps you search for publicly available information about phone numbers and vehicles in India.
+                </p>
+                <p style="color: #666; margin-bottom: 15px;">
+                    <strong>⚠️ Important:</strong> Always use this tool ethically and legally. Unauthorized access to private information is illegal.
+                </p>
+                <p style="color: #666;">
+                    <strong>Data Source:</strong> Information is fetched from public databases and APIs.
+                </p>
+            </div>
+        </div>
 
         <div class="footer">
-            Made with ❤️ by <a href="https://t.me/prajwal1515" target="_blank">@prajwal1515</a>
+            OSINT Tool by: <a href="https://t.me/prajwal1515" target="_blank">@prajwal1515</a>
         </div>
     </div>
 
     <script>
-        const phoneInput = document.getElementById('phoneInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const messageDiv = document.getElementById('message');
-        const resultsDiv = document.getElementById('results');
-
-        // Load stats on page load
-        window.addEventListener('load', loadStats);
-        phoneInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchNumber();
-            }
-        });
-
-        async function loadStats() {
-            // Stats removed - no more daily limits
+        function switchTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.search-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section and activate button
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         }
 
         async function searchNumber() {
-            const phone = phoneInput.value.trim().replace(/\s+/g, '').replace('+91', '');
-            
+            const phone = document.getElementById('phoneInput').value.trim().replace(/\s+/g, '').replace('+91', '');
+            const messageDiv = document.getElementById('mobileMessage');
+            const resultsDiv = document.getElementById('mobileResults');
+            const searchBtn = document.getElementById('searchBtn');
+
             if (!phone) {
-                showMessage('Please enter a phone number', 'error');
+                showNotification('Please enter a phone number', 'error');
                 return;
             }
 
             if (!/^\d{10}$/.test(phone)) {
-                showMessage('Invalid! Enter 10-digit number', 'error');
+                showNotification('❌ Invalid! Enter 10-digit number (6-9 start)', 'error');
                 return;
             }
 
@@ -354,63 +426,71 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    displayResults(data);
-                    loadStats();
+                    displayResults(data, resultsDiv, messageDiv);
+                    showNotification(`✅ Found ${data.count} record(s)`, 'success');
                 } else {
-                    showMessage(data.error, 'error');
+                    messageDiv.innerHTML = '';
+                    showNotification(`❌ ${data.error || 'No records found'}`, 'error');
+                    resultsDiv.innerHTML = `<div class="no-results"><div class="no-results-icon">❌</div><p>${data.error || 'No records found'}</p></div>`;
                 }
             } catch (error) {
-                showMessage('Network error. Try again!', 'error');
+                messageDiv.innerHTML = '';
+                showNotification('❌ Network error. Try again!', 'error');
                 console.error('Error:', error);
             } finally {
                 searchBtn.disabled = false;
-                messageDiv.innerHTML = '';
             }
         }
 
-        function displayResults(data) {
-            let html = `<div class="success">✓ Found ${data.count} record(s) for <strong>${data.phone}</strong></div>`;
-            html += '<div class="results">';
+        function displayResults(data, resultsDiv, messageDiv) {
+            messageDiv.innerHTML = '';
+            let html = '<div class="results">';
 
             data.records.forEach((record, index) => {
                 html += `
                     <div class="record">
-                        <h3>Record ${index + 1}</h3>
-                        <div class="record-item">
-                            <span class="record-label">Mobile:</span>
-                            <span class="record-value">${record.mobile || 'N/A'}</span>
-                        </div>
-                        <div class="record-item">
-                            <span class="record-label">Name:</span>
-                            <span class="record-value">${record.name || 'N/A'}</span>
-                        </div>
-                        <div class="record-item">
-                            <span class="record-label">Father:</span>
-                            <span class="record-value">${record.father || 'N/A'}</span>
-                        </div>
-                        <div class="record-item">
-                            <span class="record-label">Address:</span>
-                            <span class="record-value">${record.address || 'N/A'}</span>
-                        </div>
-                        <div class="record-item">
-                            <span class="record-label">Carrier:</span>
-                            <span class="record-value">${record.carrier || 'N/A'}</span>
-                        </div>
-                        <div class="record-item">
-                            <span class="record-label">Alt No:</span>
-                            <span class="record-value">${record.alt_number || 'N/A'}</span>
-                        </div>
-                    </div>
+                        <h3>📋 Record ${index + 1}</h3>
                 `;
+
+                // Display all fields dynamically
+                for (const [key, value] of Object.entries(record)) {
+                    const displayKey = key
+                        .replace(/_/g, ' ')
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                    
+                    html += `
+                        <div class="record-field">
+                            <span class="record-label">🔹 ${displayKey}:</span>
+                            <span class="record-value">${value || 'N/A'}</span>
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
             });
 
             html += '</div>';
             resultsDiv.innerHTML = html;
         }
 
-        function showMessage(text, type) {
-            messageDiv.innerHTML = `<div class="${type}">${text}</div>`;
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
+
+        document.getElementById('phoneInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchNumber();
+            }
+        });
     </script>
 </body>
 </html>
