@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔍 OSINT Bot - Phone & Vehicle Search</title>
+    <title>🔍 OSINT Bot - Premium Phone & Vehicle Search</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -22,122 +22,170 @@
             max-width: 900px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 50px 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .header h1 {
-            font-size: 36px;
+            font-size: 42px;
             margin-bottom: 10px;
-            font-weight: 700;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .header p {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 15px;
+            opacity: 0.95;
             margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
         }
 
         .warning {
-            background: rgba(255, 193, 7, 0.2);
-            border: 1px solid #ffc107;
-            color: #ff6f00;
-            padding: 10px 15px;
-            border-radius: 8px;
+            background: rgba(255, 193, 7, 0.25);
+            border: 2px solid #ffc107;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 10px;
             font-size: 13px;
             display: inline-block;
             margin-top: 10px;
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
         }
 
         .tabs {
             display: flex;
             gap: 0;
             padding: 20px 30px;
-            border-bottom: 2px solid #f0f0f0;
+            background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+            border-bottom: 3px solid #f0f0f0;
         }
 
         .tab-btn {
-            padding: 12px 20px;
+            padding: 14px 25px;
             border: none;
             background: transparent;
             color: #666;
             cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border-bottom: 4px solid transparent;
             position: relative;
-            bottom: -2px;
+            bottom: -3px;
         }
 
         .tab-btn.active {
             color: #667eea;
             border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
         }
 
         .tab-btn:hover {
             color: #667eea;
+            transform: translateY(-2px);
         }
 
         .content {
-            padding: 30px;
+            padding: 40px;
         }
 
         .search-section {
             display: none;
+            animation: fadeIn 0.4s ease;
         }
 
         .search-section.active {
             display: block;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .search-subtitle {
+            color: #999;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
         .search-box {
             display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 12px;
+            margin-bottom: 35px;
         }
 
         .search-box input {
             flex: 1;
-            padding: 14px 18px;
+            padding: 16px 20px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             outline: none;
+            background: #f9f9f9;
         }
 
         .search-box input:focus {
             border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .btn {
-            padding: 14px 30px;
+            padding: 16px 35px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
 
         .btn:disabled {
@@ -150,40 +198,37 @@
         }
 
         .record {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 4px solid #667eea;
-            animation: slideIn 0.3s ease-out;
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f4ff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 6px solid;
+            border-image: linear-gradient(180deg, #667eea, #764ba2, #f093fb) 1;
+            animation: slideIn 0.4s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .record h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 16px;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .record-field {
             display: grid;
-            grid-template-columns: 120px 1fr;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
+            grid-template-columns: 160px 1fr;
+            padding: 14px 0;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+            font-size: 15px;
         }
 
         .record-field:last-child {
@@ -193,35 +238,41 @@
         .record-label {
             color: #667eea;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .record-value {
             color: #333;
             word-break: break-word;
+            padding-left: 15px;
+            font-weight: 500;
+            background: linear-gradient(90deg, rgba(240, 147, 251, 0.05) 0%, transparent 100%);
+            padding-right: 10px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            border-radius: 6px;
         }
 
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 10px;
+            top: 25px;
+            right: 25px;
+            padding: 18px 28px;
+            border-radius: 12px;
             color: white;
-            font-weight: 600;
-            animation: slideInRight 0.3s ease-out;
+            font-weight: 700;
+            animation: slideInRight 0.4s ease-out;
             z-index: 1000;
-            max-width: 350px;
+            max-width: 380px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            font-size: 15px;
         }
 
         @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(450px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .notification.error {
@@ -232,24 +283,20 @@
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
         }
 
-        .notification.info {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-
         .loading {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             color: #667eea;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 5px solid rgba(102, 126, 234, 0.1);
+            border-top: 5px solid #667eea;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -260,58 +307,43 @@
         .footer {
             text-align: center;
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            padding-top: 25px;
+            border-top: 2px solid #f0f0f0;
             color: #999;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .footer a {
             color: #667eea;
             text-decoration: none;
+            font-weight: 600;
         }
 
         .no-results {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 20px;
             color: #999;
         }
 
         .no-results-icon {
-            font-size: 48px;
+            font-size: 56px;
             margin-bottom: 15px;
         }
 
+        .no-results p {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
         @media (max-width: 600px) {
-            .header h1 {
-                font-size: 28px;
-            }
-
-            .tabs {
-                padding: 15px 20px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .search-box {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .record-field {
-                grid-template-columns: 100px 1fr;
-            }
-
-            .notification {
-                right: 10px;
-                left: 10px;
-                max-width: none;
-            }
+            .header h1 { font-size: 32px; }
+            .tabs { padding: 12px 15px; }
+            .tab-btn { padding: 10px 15px; font-size: 14px; }
+            .content { padding: 25px; }
+            .search-box { flex-direction: column; }
+            .btn { width: 100%; }
+            .record-field { grid-template-columns: 130px 1fr; }
+            .notification { right: 12px; left: 12px; max-width: none; }
         }
     </style>
 </head>
@@ -319,7 +351,7 @@
     <div class="container">
         <div class="header">
             <h1>🔍 OSINT_TOOL</h1>
-            <p>Search phone numbers and vehicle information</p>
+            <p>Search phone numbers and vehicle information instantly</p>
             <div class="warning">⚠️ Use it just for ethical use only. Misuse of information is punishable by law.</div>
         </div>
 
@@ -330,47 +362,31 @@
         </div>
 
         <div class="content">
-            <!-- Mobile Search -->
             <div class="search-section active" id="mobile">
-                <h2 style="margin-bottom: 15px; color: #333;">📱 Mobile Number Search</h2>
-                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Enter a 10-digit mobile number to search</p>
-                
+                <h2 class="search-title">📱 Mobile Number Search</h2>
+                <p class="search-subtitle">Enter a 10-digit mobile number to search</p>
                 <div class="search-box">
-                    <input 
-                        type="text" 
-                        id="phoneInput" 
-                        placeholder="Enter 10-digit number (6-9 start)"
-                        autocomplete="off"
-                    >
+                    <input type="text" id="phoneInput" placeholder="Enter 10-digit number (6-9 start)" autocomplete="off">
                     <button class="btn" id="searchBtn" onclick="searchNumber()">🔍 Search Mobile</button>
                 </div>
-
                 <div id="mobileMessage"></div>
                 <div id="mobileResults"></div>
             </div>
 
-            <!-- Vehicle Search -->
             <div class="search-section" id="vehicle">
-                <h2 style="margin-bottom: 15px; color: #333;">🚗 Vehicle Search</h2>
-                <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Vehicle search feature coming soon...</p>
+                <h2 class="search-title">🚗 Vehicle Search</h2>
+                <p class="search-subtitle">Vehicle search feature coming soon...</p>
                 <div class="no-results">
                     <div class="no-results-icon">🔜</div>
                     <p>Vehicle number search will be available soon!</p>
                 </div>
             </div>
 
-            <!-- About -->
             <div class="search-section" id="about">
-                <h2 style="margin-bottom: 15px; color: #333;">ℹ️ About OSINT Tool</h2>
-                <p style="color: #666; margin-bottom: 15px;">
-                    This tool helps you search for publicly available information about phone numbers and vehicles in India.
-                </p>
-                <p style="color: #666; margin-bottom: 15px;">
-                    <strong>⚠️ Important:</strong> Always use this tool ethically and legally. Unauthorized access to private information is illegal.
-                </p>
-                <p style="color: #666;">
-                    <strong>Data Source:</strong> Information is fetched from public databases and APIs.
-                </p>
+                <h2 class="search-title">ℹ️ About OSINT Tool</h2>
+                <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">This tool helps you search for publicly available information about phone numbers and vehicles in India.</p>
+                <p style="color: #666; margin-bottom: 15px; line-height: 1.6;"><strong style="color: #333;">⚠️ Important:</strong> Always use this tool ethically and legally. Unauthorized access to private information is illegal.</p>
+                <p style="color: #666; line-height: 1.6;"><strong style="color: #333;">📊 Data Source:</strong> Information is fetched from public databases and APIs.</p>
             </div>
         </div>
 
@@ -380,18 +396,14 @@
     </div>
 
     <script>
+        const fieldEmojis = {'mobile':'📱', 'name':'👤', 'fname':'👨‍👩‍👦', 'address':'🏠', 'alt':'☎️', 'circle':'📡', 'id':'🆔', 'aadhar':'🆔', 'father':'👨', 'alt_number':'☎️', 'carrier':'📡'};
+
+        function getFieldEmoji(key) { return fieldEmojis[key] || '🔹'; }
+        function formatFieldName(key) { if (key === 'id') return 'Aadhar'; return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()); }
+        
         function switchTab(tabName) {
-            // Hide all sections
-            document.querySelectorAll('.search-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show selected section and activate button
+            document.querySelectorAll('.search-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         }
@@ -402,15 +414,8 @@
             const resultsDiv = document.getElementById('mobileResults');
             const searchBtn = document.getElementById('searchBtn');
 
-            if (!phone) {
-                showNotification('Please enter a phone number', 'error');
-                return;
-            }
-
-            if (!/^\d{10}$/.test(phone)) {
-                showNotification('❌ Invalid! Enter 10-digit number (6-9 start)', 'error');
-                return;
-            }
+            if (!phone) { showNotification('📝 Please enter a phone number', 'error'); return; }
+            if (!/^\d{10}$/.test(phone)) { showNotification('❌ Invalid! Enter 10-digit number (6-9 start)', 'error'); return; }
 
             searchBtn.disabled = true;
             messageDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Searching...</div>';
@@ -427,7 +432,7 @@
 
                 if (data.success) {
                     displayResults(data, resultsDiv, messageDiv);
-                    showNotification(`✅ Found ${data.count} record(s)`, 'success');
+                    showNotification(`✅ Found ${data.count} record(s) for ${data.phone}`, 'success');
                 } else {
                     messageDiv.innerHTML = '';
                     showNotification(`❌ ${data.error || 'No records found'}`, 'error');
@@ -445,30 +450,15 @@
         function displayResults(data, resultsDiv, messageDiv) {
             messageDiv.innerHTML = '';
             let html = '<div class="results">';
-
             data.records.forEach((record, index) => {
-                html += `
-                    <div class="record">
-                        <h3>📋 Record ${index + 1}</h3>
-                `;
-
-                // Display all fields dynamically
+                html += `<div class="record"><h3>📋 Record ${index + 1}</h3>`;
                 for (const [key, value] of Object.entries(record)) {
-                    const displayKey = key
-                        .replace(/_/g, ' ')
-                        .replace(/\b\w/g, l => l.toUpperCase());
-                    
-                    html += `
-                        <div class="record-field">
-                            <span class="record-label">🔹 ${displayKey}:</span>
-                            <span class="record-value">${value || 'N/A'}</span>
-                        </div>
-                    `;
+                    const displayKey = formatFieldName(key);
+                    const emoji = getFieldEmoji(key);
+                    html += `<div class="record-field"><span class="record-label">${emoji} ${displayKey}:</span><span class="record-value">${value || 'N/A'}</span></div>`;
                 }
-
                 html += '</div>';
             });
-
             html += '</div>';
             resultsDiv.innerHTML = html;
         }
@@ -478,11 +468,10 @@
             notification.className = `notification ${type}`;
             notification.textContent = message;
             document.body.appendChild(notification);
-
             setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+                notification.style.animation = 'slideInRight 0.4s ease-out reverse';
+                setTimeout(() => notification.remove(), 400);
+            }, 3500);
         }
 
         document.getElementById('phoneInput').addEventListener('keypress', (e) => {
